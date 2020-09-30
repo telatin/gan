@@ -6,8 +6,8 @@ The Next Million Names for Archaea and Bacteria
 ## Dependencies
 
 The scripts in this repository require Python (at least 3.6) and these modules:
-* itertools
-* pandas (1.1.0)
+* itertools (ships with Python)
+* pandas (>1.0)
 * xlrd (1.2.0)
 
 ## Etymology
