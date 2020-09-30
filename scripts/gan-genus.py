@@ -177,7 +177,10 @@ def combine_etymology(triplet, parts):
     """
 
     etymology_html = ""
+    etymology_raw = []
     hint = ""
+
+
     for index in range(len(triplet)):  # TODO - range using len?
         w = parts[index]
         key = triplet[index]
@@ -185,16 +188,22 @@ def combine_etymology(triplet, parts):
 
             if part == "Root":
                 etymology_html += triplet[index]
+                etymology_raw.append( ['root', triplet[index]] )
             else:
                 if part in ("Language", "Gender", "Part"):
                     etymology_html += "<span class=\"glossary\">" + w[part][key] + "</span>"
+                    etymology_raw.append(['glossary',w[part][key] ])
                 elif part in ("Word"):
                     etymology_html += "<em>" + w[part][key] + "</em>,"
+                    etymology_raw.append(['italic', w[part][key]] )
+                    etymology_raw.append( ['separator', ','])
                 else:
                     etymology_html += w[part][key]
+                    etymology_raw.append(['plain', w[part][key]])
                 # add trailing space if not last part
                 if part != "Definition":
                     etymology_html += "&nbsp;"
+                    etymology_raw.append(['separator',' '])
         etymology_html += "; "
 
     for index in reversed(range(len(triplet))):
@@ -203,11 +212,11 @@ def combine_etymology(triplet, parts):
         else:
             hint += parts[index]["Definition"][triplet[index]]
         if index > 0:
-            hint += opt.connector
+            hint += " " + opt.connector + " "
     #    hint = parts[2]["Explanation"][triplet[2]] + " of " + parts[1]["Explanation"][triplet[1]] + " of " + \
     #           parts[0]["Explanation"][triplet[0]]
 
-    return (hint, etymology_html)
+    return (hint, etymology_html, etymology_raw)
 
 
 if __name__ == "__main__":
@@ -255,14 +264,18 @@ if __name__ == "__main__":
     prefixes = read_list_from_xlsx_workbook(opt.first)
     mids = read_list_from_xlsx_workbook(opt.second)
 
+    words_list = []
     if opt.third is not None:
         suffixes = read_list_from_xlsx_workbook(opt.third)
         permutations = lists_permutations([prefixes, mids, suffixes])
         for triplet in permutations:
             counter += 1
-            eprint("#", counter, triplet)
+
             combinedWord = combine_roots(triplet)
-            combinedEtym, fullEtym = combine_etymology(triplet, [prefixes, mids, suffixes])
+            combinedEtym, fullEtym, rawEtym = combine_etymology(triplet, [prefixes, mids, suffixes])
+            words_list.append({ combinedWord : rawEtym })
+
+            eprint("#", counter, triplet, rawEtym)
             html += f"<p><h3>{combinedWord}</h3>\n<strong>Etymology:</strong> {fullEtym}<em>{combinedWord}</em>: {combinedEtym}.</p>\n\n"
 
         print(html_header + f"{counter} genera produced from:"
@@ -275,9 +288,10 @@ if __name__ == "__main__":
         permutations = lists_permutations([prefixes, mids])
         for triplet in permutations:
             counter += 1
-            eprint("#", counter, triplet)
             combinedWord = combine_roots(triplet)
-            combinedEtym, fullEtym = combine_etymology(triplet, [prefixes, mids])
+            combinedEtym, fullEtym, rawEtym = combine_etymology(triplet, [prefixes, mids])
+            words_list.append({ combinedWord : rawEtym })
+            eprint("#", counter, triplet, rawEtym)
             html += f"<div><p><h3>{combinedWord}</h3>\n<strong>Etymology:</strong> {fullEtym}<em>{combinedWord}</em>: {combinedEtym}.</p></div>\n\n"
 
         print(html_header + f"{counter} genera produced from:"
@@ -285,3 +299,6 @@ if __name__ == "__main__":
                             f"<li><em>First table</em>: {os.path.basename(opt.first)} ({len(prefixes.index)})</li>"
                             f"<li><em>Second table</em>: {os.path.basename(opt.second)} ({len(mids.index)})</li>"
                             f"</ul>.<hr>\n", html, "</body></html>")
+
+    with open(opt.outdir + "/words.json", "w")  as file:
+        file.write(json.dumps(words_list, sort_keys=True, indent=4))
