@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import os
+programdir=os.path.dirname(os.path.realpath(__file__))
 version = "0.1.0"
 columns = ["Language", "Gender", "Part", "Word", "Definition", "Explanation"]
 
@@ -8,6 +10,11 @@ validate = {
     "Gender": ["masc.", "fem.", "neut.", "masc./fem."],
     "Part": ["n.", "adj.", "adv.", "gen.", "nom."]   #?
 }
+
+
+def slurp(filename):
+    with open(programdir + "/" + filename, 'r') as file:
+        return file.read()
 
 # abl.
 # ablative
