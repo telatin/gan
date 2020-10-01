@@ -4,7 +4,11 @@
 import argparse
 import itertools
 import os, sys, json
+from ganlib import *
 from IPython import embed;
+import codecs
+from string import Template
+
 
 program = "GAN (Great Automatic Nomenclaturer)"
 version = "0.2.1"
@@ -45,14 +49,6 @@ def read_list_from_xlsx_workbook(filename):
             f"FATAL ERROR:\nUnable to read file \"{filename}\":[page=0] (expecting column \"Root\").\n({e})")
         quit(1)
 
-    try:
-        with open(f"{opt.outdir}/tables.html", "a") as f:
-            sheet = 1
-            f.write(html_header + f"<h3>Workbook {sheet}</h3>\n")
-            f.write(table.to_html())
-    except Exception as e:
-        eprint(f"WARNING: HTML not saved for workbook 1 of {filename}.\n{e}")
-
     # Check needed columns
     required_cols = ["Language", "Gender"]
     optional_cols = ["Part", "Definition", "Explanation"]
@@ -60,22 +56,12 @@ def read_list_from_xlsx_workbook(filename):
     for column in required_cols:
         if column not in table:
             eprint(f"INPUT FORMAT ERROR:\nRequired column \"{column}\" not found in the Excel file \"{filename}\".")
+            eprint("Got:", table.columns)
             exit()
     for column in optional_cols:
         if column not in table:
             eprint(
                 f"WARNING: Suggested column \"{column}\" not found in the Excel file \"{filename}\".")
-
-    # # Check values: Gender M/F/MF/N
-    # if ((table["Gender"] != "M") & (table["Gender"] != "F") & (table["Gender"] != "MF") & (
-    #         table["Gender"] != "N")).sum():
-    #     eprint(f"ERROR: Workbook {workbook_index} contains invalid values for Gender (expected M, F, MF, N).")
-    #     quit(1)
-    #
-    # # Check values: Language is L/G/NL
-    # if ((table["Language"] != "L") & (table["Language"] != "G") & (table["Language"] != "NL")).sum():
-    #     eprint(f"ERROR: Workbook {workbook_index} contains invalid values for Language (expected L, G, NL).")
-    #     quit(1)
 
     return table
 
@@ -165,7 +151,8 @@ def genderToString(string):
         return gender[string]
     else:
         eprint(f"Error: gender {string} is not valid.")
-        raise Exception("ganWrongGender")
+        #raise Exception("ganWrongGender")
+        return ""
 
 
 def combine_etymology(triplet, parts):
@@ -191,7 +178,7 @@ def combine_etymology(triplet, parts):
                 etymology_raw.append( ['root', triplet[index]] )
             else:
                 if part in ("Language", "Gender", "Part"):
-                    etymology_html += "<span class=\"glossary\">" + w[part][key] + "</span>"
+                    etymology_html += "<span class=\"glossary\">" + str(w[part][key]) + "</span>"
                     etymology_raw.append(['glossary',w[part][key] ])
                 elif part in ("Word"):
                     etymology_html += "<em>" + w[part][key] + "</em>,"
@@ -205,17 +192,21 @@ def combine_etymology(triplet, parts):
                     etymology_html += "&nbsp;"
                     etymology_raw.append(['separator',' '])
         etymology_html += "; "
+        etymology_raw.append(['separator', '; '])
 
     for index in reversed(range(len(triplet))):
-        if "Explanation" in parts[index]:
-            hint += parts[index]["Explanation"][triplet[index]]
+        if "Explanation" in parts[index] and not pd.isna(parts[index]["Explanation"][triplet[index]]):
+            try:
+                hint += parts[index]["Explanation"][triplet[index]]
+            except Exception as e:
+                eprint("WARNING: Error in Explanation:\n" + parts[index]["Explanation"][triplet[index]], "\t", e)
         else:
             hint += parts[index]["Definition"][triplet[index]]
         if index > 0:
             hint += " " + opt.connector + " "
     #    hint = parts[2]["Explanation"][triplet[2]] + " of " + parts[1]["Explanation"][triplet[1]] + " of " + \
     #           parts[0]["Explanation"][triplet[0]]
-
+    etymology_raw.append( ['combined', hint] )
     return (hint, etymology_html, etymology_raw)
 
 
@@ -236,6 +227,10 @@ if __name__ == "__main__":
     opt_parser.add_argument('-o', '--outdir',
                             help="Output directory",
                             required=True)
+
+    opt_parser.add_argument('-p', '--prefix',
+                            help="Output basename",
+                            default="gan")
     opt_parser.add_argument('-c', '--connector',
                             help="String connecting the explanatory strings [default: of]",
                             default="of")
@@ -245,27 +240,22 @@ if __name__ == "__main__":
 
     opt = opt_parser.parse_args()
     import pandas as pd
-    html_header = (f"<html>\n"
-                   f"    <head>\n"
-                   f"    <meta charset=\"utf-8\" />\n"
-                   f"	 <style><!--\n"
-                   f"       * {{ font-family: Georgia, \"Times New Roman\", Times, serif;; }}\n"
-                   f"       h3 {{ color:brown; font-style: italic; padding: 0px; margin: 0px; margin-bottom: 0.5em; margin-top: 1.6em;}}"
-                   f"       .glossary {{ border-bottom: 1px dotted; }}"
-                   f"       .def  {{ font-size: 1.1em; line-height: 220%; }}"
-                   f"       #page {{ width: 80%; margin: 0 auto 0 auto; }}"
-                   f"     --></style>\n"
-                   f"    </head>\n"
-                   f"	<body><div id=\"page\"><h1>GAN Genera</h1>")
 
+    latex_template = slurp('latex.template')
+    html_template  = slurp('html.template')
+    latex = Template(latex_template)
+    html = Template(html_template)
+    html_list = ""
+    latex_list = ""
     counter = 0
-    html = ""
+
     suffixes = []
     prefixes = read_list_from_xlsx_workbook(opt.first)
     mids = read_list_from_xlsx_workbook(opt.second)
-
     words_list = []
+    third_if = "(none)"
     if opt.third is not None:
+        third_if = opt.third
         suffixes = read_list_from_xlsx_workbook(opt.third)
         permutations = lists_permutations([prefixes, mids, suffixes])
         for triplet in permutations:
@@ -274,16 +264,12 @@ if __name__ == "__main__":
             combinedWord = combine_roots(triplet)
             combinedEtym, fullEtym, rawEtym = combine_etymology(triplet, [prefixes, mids, suffixes])
             words_list.append({ combinedWord : rawEtym })
+            if opt.verbose:
+                eprint("#", counter, triplet)
+            html_list += f"<p><h3>{combinedWord}</h3>\n<strong>Etymology:</strong> {fullEtym}<em>{combinedWord}</em>: {combinedEtym}.</p>\n\n"
 
-            eprint("#", counter, triplet, rawEtym)
-            html += f"<p><h3>{combinedWord}</h3>\n<strong>Etymology:</strong> {fullEtym}<em>{combinedWord}</em>: {combinedEtym}.</p>\n\n"
 
-        print(html_header + f"{counter} genera produced from:"
-              f"<ul>"
-              f"<li><em>First table</em>: {os.path.basename(opt.first)} ({len(prefixes.index)})</li>"
-              f"<li><em>Second table</em>: {os.path.basename(opt.second)} ({len(mids.index)})</li>"
-              f"<li><em>Third table</em>: {os.path.basename(opt.third)} ({len(suffixes.index)})</li>"
-              f"</ul>.<hr>\n", html, "</body></html>")
+
     else:
         permutations = lists_permutations([prefixes, mids])
         for triplet in permutations:
@@ -291,14 +277,58 @@ if __name__ == "__main__":
             combinedWord = combine_roots(triplet)
             combinedEtym, fullEtym, rawEtym = combine_etymology(triplet, [prefixes, mids])
             words_list.append({ combinedWord : rawEtym })
-            eprint("#", counter, triplet, rawEtym)
-            html += f"<div><p><h3>{combinedWord}</h3>\n<strong>Etymology:</strong> {fullEtym}<em>{combinedWord}</em>: {combinedEtym}.</p></div>\n\n"
+            if opt.verbose:
+                eprint("#", counter, triplet)
+            html_list += f"<div><p><h3>{combinedWord}</h3>\n<strong>Etymology:</strong> {fullEtym}<em>{combinedWord}</em>: {combinedEtym}.</p></div>\n\n"
 
-        print(html_header + f"{counter} genera produced from:"
-                            f"<ul>"
-                            f"<li><em>First table</em>: {os.path.basename(opt.first)} ({len(prefixes.index)})</li>"
-                            f"<li><em>Second table</em>: {os.path.basename(opt.second)} ({len(mids.index)})</li>"
-                            f"</ul>.<hr>\n", html, "</body></html>")
 
-    with open(opt.outdir + "/words.json", "w")  as file:
+
+    eprint("Saving JSON")
+    with open(opt.outdir + "/" + opt.prefix + ".json", "w")  as file:
         file.write(json.dumps(words_list, sort_keys=True, indent=4))
+
+
+
+    eprint("Saving HTML")
+    with codecs.open(opt.outdir + "/" + opt.prefix + ".html", "w", "utf-8")  as file:
+        file.write(html.safe_substitute(total=counter,
+                        filename1=os.path.basename(opt.first),
+                        filename2=os.path.basename(opt.second),
+                        filename3=third_if,
+                        count1=len(prefixes.index),
+                        count2=len(mids.index),
+                        count3=len(suffixes.index),
+                        list=html_list
+                        )
+        )
+
+    eprint("Saving LaTeX")
+    for w in words_list:
+        for key in w:
+            latex_list += "\subsection*{\\textit{" + key + "}}\n"
+            for type, item in w[key]:
+                if type == 'italic':
+                    latex_list += "\\textit{" + item + "}"
+                elif type == 'glossary':
+                    #latex_list += "\\textsc{" + item + "}"
+                    latex_list += item
+                elif type == 'combined':
+                    latex_list += "\\textit{" + key + "}" + ": " + item + ". "
+                else:
+                    latex_list += item
+
+            latex_list += "\n\n"
+
+    latex_out = opt.outdir + "/" + opt.prefix + ".tex"
+    with codecs.open(latex_out, "w", "utf-8")  as file:
+        file.write(latex.safe_substitute(
+                        filename1=os.path.basename(opt.first).replace("_", "{\_}"),
+                         filename2=os.path.basename(opt.second).replace("_", "{\_}"),
+                         filename3=third_if.replace("_", "{\_}"),
+                         count1=len(prefixes.index),
+                         count2=len(mids.index),
+                         count3=len(suffixes.index),
+                         list=latex_list.replace("_", "\_"),
+                         roots="\\textit{Not implemented in the current version.}")
+        )
+
