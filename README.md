@@ -10,7 +10,9 @@ The scripts in this repository require Python (at least 3.6) and these modules:
 * pandas (>1.0)
 * xlrd (1.2.0)
 
+## Principle
 
+![Gan flowchart](docs/gan_concept_wiki.png)
 ## Genera generator
 
 Synopsis:
