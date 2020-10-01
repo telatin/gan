@@ -45,8 +45,7 @@ optional arguments:
   -c CONNECTOR, --connector CONNECTOR
                         String connecting the explanatory strings [default: of]
   -v, --verbose         Increase output verbosity
-
-
+ ```
 
 ## Etymology
 
