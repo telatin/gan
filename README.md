@@ -3,6 +3,13 @@
 # GAN: The Great Automatic Nomenclator
 The Next Million Names for Archaea and Bacteria
 
+
+## Principle
+
+To generate a large number of new names, we apply a combinatorial approach starting with two or three sets of _curated roots_, that are processed to produce all their possible combinations while keeping trace of their grammatical metadata to draft a valid etymology.
+
+![Gan flowchart](docs/gan_concept_wiki.png)
+
 ## Dependencies
 
 The scripts in this repository require Python (at least 3.6) and these modules:
@@ -10,9 +17,6 @@ The scripts in this repository require Python (at least 3.6) and these modules:
 * pandas (>1.0)
 * xlrd (1.2.0)
 
-## Principle
-
-![Gan flowchart](docs/gan_concept_wiki.png)
 ## Genera generator
 
 Synopsis:
