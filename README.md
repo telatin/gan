@@ -19,6 +19,10 @@ The scripts in this repository require Python (at least 3.6) and these modules:
 
 ## Genera generator
 
+A set of two (or three) Excel tables formatted as shown below is used to generate the list of combinations in JSON, HTML and LaTeX format.
+
+![Excel input format](docs/input_table.png)
+
 Synopsis:
 
 ```
@@ -41,6 +45,7 @@ optional arguments:
   -c CONNECTOR, --connector CONNECTOR
                         String connecting the explanatory strings [default: of]
   -v, --verbose         Increase output verbosity
+
 
 
 ## Etymology
