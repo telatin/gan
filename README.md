@@ -31,6 +31,12 @@ usage: gan-genus.py [-h] -1 FIRST -2 SECOND [-3 THIRD] -o OUTDIR [-p PREFIX] [-c
 
 For full usage and installation instructions, please [check the documentation](docs/documentation.md).
 
+
+## Example output
+
+* in [PDF format](https://telatin.github.io/gan/example.pdf)
+* in [HTML format](https://telatin.github.io/gan/example.pdf)
+
 ## Etymology
 
 "*The great automatic nomenclaturer*" is a reference to a short story ("_The Great Automatic Grammatizator_") 
