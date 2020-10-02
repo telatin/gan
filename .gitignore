@@ -128,3 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 output/
+the_real_final_input/
+.DS_Store
