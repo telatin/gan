@@ -279,7 +279,7 @@ if __name__ == "__main__":
     suffixes = []
     prefixes = read_list_from_xlsx_workbook(opt.first)
     mids = read_list_from_xlsx_workbook(opt.second)
-    eprint("File 1 and 2: loaded")
+    eprint("Input files loaded")
     words_list = []
     third_if = "(not provided)"
     third_c  = 0
@@ -343,13 +343,14 @@ if __name__ == "__main__":
 
     for w in words_list:
         for key in w:
-            latex_list += "\subsection*{\\textit{" + key + "}}\n"
+            #latex_list += "\subsection*{\\textit{" + key + "}}\n"
+            latex_list  += "\\textbf{" + key + "} --- "
             for type, item in w[key]:
                 if type == 'italic':
                     latex_list += "\\textit{" + item + "}"
                 elif type == 'glossary':
-                    #latex_list += "\\textsc{" + item + "}"
-                    latex_list += str(item)
+                    latex_list += "\\dashuline{" + item + "}"
+                    #latex_list += str(item)
                 elif type == 'combined':
                     latex_list += "\\textit{" + key + "}" + ": " + item + ". "
                 else:
