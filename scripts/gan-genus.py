@@ -96,9 +96,9 @@ def is_vowel(letter):
         eprint(f"ERROR: Expecting a letter but received '{letter}'.")
         quit(2)
 
-    vowels = ['a', 'e', 'i', 'o', 'u']
+    vowels = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']
 
-    if letter in vowels:
+    if letter.lower() in vowels:
         return True
 
     return False
@@ -108,19 +108,24 @@ def join_two_roots(m, n):
     """
     Function to join two words
     """
+
+    m = ''.join([i for i in m if not i.isdigit()])
+    n = ''.join([i for i in n if not i.isdigit()])
+
     protected_suffixes = ('bio', 'geo', 'neo', 'mega', 'micro', 'allo', 'amphi', 'extra', 'hetero', 'iso', 'iuxta', 'meso', 'neo', 'peri', 'quasi', 'ultra')
     #protected_suffixes = ('bio', 'geo', 'mega', ‘micro’, ‘allo’, ‘amphi’, ‘extra’, ‘hetero’, ‘iso’, ‘iuxta’, ‘meso’, ‘neo’, ‘peri’, ‘quasi’, ‘ultra’)
 
     # If the first word ends with one of the suffixes tuple, join without changes
     if m is None:
-        print(f"<{m}> <{n}>")
+        print(f"Uncaught expection: <{m}> <{n}>")
         pdb.set_trace()
     if m.endswith(protected_suffixes):
         return m + n
 
     # If the last letter of the first and first letter of the second word are vowels, remove last char of first word
     if is_vowel(m[-1]) and is_vowel(n[0]):
-        return m[:-1] + n
+        return m[:-1]  + n
+
 
     return m + n
 
@@ -242,18 +247,25 @@ if __name__ == "__main__":
                             required=True)
 
     opt_parser.add_argument('-p', '--prefix',
-                            help="Output basename",
+                            help="Output basename [default: 'gan']",
                             default="gan")
     opt_parser.add_argument('-c', '--connector',
-                            help="String connecting the explanatory strings [default: of]",
+                            help="String connecting the explanatory strings [default: 'of']",
                             default="of")
     opt_parser.add_argument('-v', '--verbose',
                             help='Increase output verbosity',
                             action='store_true')
 
+
+
     opt = opt_parser.parse_args()
 
     strip_ending = re.compile(f"\s*{opt.connector}\s*$")
+
+    eprint("          ----- G A N  -----        ")
+    eprint("   the great automatic nomenclator  ")
+    eprint("")
+
     import pandas as pd
 
     latex_template = slurp('latex.template')
@@ -271,6 +283,8 @@ if __name__ == "__main__":
     words_list = []
     third_if = "(not provided)"
     third_c  = 0
+
+
     if opt.third is not None:
         third_if = opt.third
 
@@ -279,7 +293,9 @@ if __name__ == "__main__":
         permutations = lists_permutations([prefixes, mids, suffixes])
         for triplet in permutations:
             counter += 1
-
+            if  counter % int(len(permutations)/10) == 0:
+                frac = int(10 * counter / int(len(permutations) / 10))
+                eprint(f" - {frac}% combinations generated...")
             combinedWord = combine_roots(triplet)
             combinedEtym, fullEtym, rawEtym = combine_etymology(triplet, [prefixes, mids, suffixes])
             words_list.append({ combinedWord : rawEtym })
@@ -293,6 +309,9 @@ if __name__ == "__main__":
         permutations = lists_permutations([prefixes, mids])
         for triplet in permutations:
             counter += 1
+            if  counter % int(len(permutations)/10) == 0:
+                frac = int(10 * counter / int(len(permutations)/10))
+                eprint(f" - {frac}% combinations generated...")
             combinedWord = combine_roots(triplet)
             combinedEtym, fullEtym, rawEtym = combine_etymology(triplet, [prefixes, mids])
             words_list.append({ combinedWord : rawEtym })
@@ -302,13 +321,13 @@ if __name__ == "__main__":
 
 
 
-    eprint("Saving JSON")
+    eprint("\nSaving JSON: " + opt.outdir + "/" + opt.prefix + ".json")
     with open(opt.outdir + "/" + opt.prefix + ".json", "w")  as file:
         file.write(json.dumps(words_list, sort_keys=True, indent=4))
 
 
 
-    eprint("Saving HTML")
+    eprint("Saving HTML:" + opt.outdir + "/" + opt.prefix + ".html")
     with codecs.open(opt.outdir + "/" + opt.prefix + ".html", "w", "utf-8")  as file:
         file.write(html.safe_substitute(total=counter,
                         filename1=os.path.basename(opt.first),
@@ -321,7 +340,7 @@ if __name__ == "__main__":
                         )
         )
 
-    eprint("Saving LaTeX")
+
     for w in words_list:
         for key in w:
             latex_list += "\subsection*{\\textit{" + key + "}}\n"
@@ -339,6 +358,7 @@ if __name__ == "__main__":
             latex_list += "\n\n"
 
     latex_out = opt.outdir + "/" + opt.prefix + ".tex"
+    eprint("Saving LaTeX:" + latex_out)
     latex_list = re.sub('existing\s+genus\s+(\w+)', 'existing genus \\\\textit{\\1}', latex_list.replace("_", "\_"))
     latex_list = re.sub('existing\s+species\s+(\w+\s+\w+)', 'existing genus \\\\textit{\\1}', latex_list.replace("_", "\_"))
 
