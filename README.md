@@ -34,6 +34,8 @@ For full usage and installation instructions, please [check the documentation](d
 
 ## Example output
 
+Using three small files in the _input\_test_ directory (8, 11 and 8 words, respectively), GAN produced 968 (8 x 11 x 8)combinations:
+
 * in [PDF format](https://telatin.github.io/gan/example.pdf)
 * in [HTML format](https://telatin.github.io/gan/example.pdf)
 
