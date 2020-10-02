@@ -3,15 +3,15 @@
 
 import argparse
 import itertools
-import os, sys, json
+import os, sys, json, re
 from ganlib import *
 from IPython import embed;
 import codecs
 from string import Template
 
 
-program = "GAN (Great Automatic Nomenclaturer)"
-version = "0.2.1"
+program = "GAN (Great Automatic Nomenclator)"
+version = "0.6.1"
 
 
 # Input File
@@ -24,8 +24,11 @@ version = "0.2.1"
 #     - Explanation (free text)	    Optional
 #
 # Release notes
-#
-# 0.2.0 	Initial print of etymology concatenating "Explanation"s
+# 0.6.0  External templates
+# 0.5.0  LaTeX support
+# 0.4.0  HTML output
+# 0.3.0  Etymology
+# 0.2.0  Initial print of etymology concatenating "Explanation"s
 # 0.1.0  Initial release parsing an Excel file with three workbooks
 # 			- Validating each workbook for column names and valid values
 # 			- Create all combinations (triplet of Keys)
@@ -55,9 +58,12 @@ def read_list_from_xlsx_workbook(filename):
 
     for column in required_cols:
         if column not in table:
+            #table[column] = table["column"].str.replace(" ", "")
             eprint(f"INPUT FORMAT ERROR:\nRequired column \"{column}\" not found in the Excel file \"{filename}\".")
             eprint("Got:", table.columns)
             exit()
+        else:
+            table[column] = table[column].str.strip()
     for column in optional_cols:
         if column not in table:
             eprint(
@@ -90,7 +96,7 @@ def is_vowel(letter):
         eprint(f"ERROR: Expecting a letter but received '{letter}'.")
         quit(2)
 
-    vowels = ['a', 'e', 'i', 'o', 'u', 'y']
+    vowels = ['a', 'e', 'i', 'o', 'u']
 
     if letter in vowels:
         return True
@@ -102,7 +108,8 @@ def join_two_roots(m, n):
     """
     Function to join two words
     """
-    protected_suffixes = ('bio', 'geo', 'neo', 'mega', 'micro')
+    protected_suffixes = ('bio', 'geo', 'neo', 'mega', 'micro', 'allo', 'amphi', 'extra', 'hetero', 'iso', 'iuxta', 'meso', 'neo', 'peri', 'quasi', 'ultra')
+    #protected_suffixes = ('bio', 'geo', 'mega', ‘micro’, ‘allo’, ‘amphi’, ‘extra’, ‘hetero’, ‘iso’, ‘iuxta’, ‘meso’, ‘neo’, ‘peri’, ‘quasi’, ‘ultra’)
 
     # If the first word ends with one of the suffixes tuple, join without changes
     if m is None:
@@ -178,8 +185,9 @@ def combine_etymology(triplet, parts):
                 etymology_raw.append( ['root', triplet[index]] )
             else:
                 if part in ("Language", "Gender", "Part"):
-                    etymology_html += "<span class=\"glossary\">" + str(w[part][key]) + "</span>"
-                    etymology_raw.append(['glossary',w[part][key] ])
+                    if not pd.isna(w[part][key]):
+                        etymology_html += "<span class=\"glossary\">" + str(w[part][key]) + "</span>"
+                        etymology_raw.append(['glossary',w[part][key] ])
                 elif part in ("Word"):
                     etymology_html += "<em>" + w[part][key] + "</em>,"
                     etymology_raw.append(['italic', w[part][key]] )
@@ -195,17 +203,22 @@ def combine_etymology(triplet, parts):
         etymology_raw.append(['separator', '; '])
 
     for index in reversed(range(len(triplet))):
-        if "Explanation" in parts[index] and not pd.isna(parts[index]["Explanation"][triplet[index]]):
-            try:
-                hint += parts[index]["Explanation"][triplet[index]]
-            except Exception as e:
-                eprint("WARNING: Error in Explanation:\n" + parts[index]["Explanation"][triplet[index]], "\t", e)
-        else:
-            hint += parts[index]["Definition"][triplet[index]]
-        if index > 0:
-            hint += " " + opt.connector + " "
-    #    hint = parts[2]["Explanation"][triplet[2]] + " of " + parts[1]["Explanation"][triplet[1]] + " of " + \
-    #           parts[0]["Explanation"][triplet[0]]
+        try:
+            if "Explanation" in parts[index] and (not pd.isna(parts[index]["Explanation"][triplet[index]]) ):
+                try:
+                    hint += parts[index]["Explanation"][triplet[index]]
+                except Exception as e:
+                    eprint("WARNING: Error in column Explanation:\n" + parts[index]["Explanation"][triplet[index]], "\t", e)
+                    quit(1)
+        except Exception as e:
+            eprint(f"ERROR:\n Exception {e}\n on index={index}, for word={triplet[index]}. Exit gracefully, for now...")
+            quit(0)
+
+            if index > 0:
+                hint += " " + opt.connector + " "
+
+    hint = re.sub(strip_ending, '', hint)
+
     etymology_raw.append( ['combined', hint] )
     return (hint, etymology_html, etymology_raw)
 
@@ -239,6 +252,8 @@ if __name__ == "__main__":
                             action='store_true')
 
     opt = opt_parser.parse_args()
+
+    strip_ending = re.compile(f"\s*{opt.connector}\s*$")
     import pandas as pd
 
     latex_template = slurp('latex.template')
@@ -252,11 +267,15 @@ if __name__ == "__main__":
     suffixes = []
     prefixes = read_list_from_xlsx_workbook(opt.first)
     mids = read_list_from_xlsx_workbook(opt.second)
+    eprint("File 1 and 2: loaded")
     words_list = []
-    third_if = "(none)"
+    third_if = "(not provided)"
+    third_c  = 0
     if opt.third is not None:
         third_if = opt.third
+
         suffixes = read_list_from_xlsx_workbook(opt.third)
+        third_c = str(len(suffixes.index))
         permutations = lists_permutations([prefixes, mids, suffixes])
         for triplet in permutations:
             counter += 1
@@ -297,7 +316,7 @@ if __name__ == "__main__":
                         filename3=third_if,
                         count1=len(prefixes.index),
                         count2=len(mids.index),
-                        count3=len(suffixes.index),
+                        count3=third_c,
                         list=html_list
                         )
         )
@@ -311,7 +330,7 @@ if __name__ == "__main__":
                     latex_list += "\\textit{" + item + "}"
                 elif type == 'glossary':
                     #latex_list += "\\textsc{" + item + "}"
-                    latex_list += item
+                    latex_list += str(item)
                 elif type == 'combined':
                     latex_list += "\\textit{" + key + "}" + ": " + item + ". "
                 else:
@@ -320,6 +339,9 @@ if __name__ == "__main__":
             latex_list += "\n\n"
 
     latex_out = opt.outdir + "/" + opt.prefix + ".tex"
+    latex_list = re.sub('existing\s+genus\s+(\w+)', 'existing genus \\\\textit{\\1}', latex_list.replace("_", "\_"))
+    latex_list = re.sub('existing\s+species\s+(\w+\s+\w+)', 'existing genus \\\\textit{\\1}', latex_list.replace("_", "\_"))
+
     with codecs.open(latex_out, "w", "utf-8")  as file:
         file.write(latex.safe_substitute(
                         filename1=os.path.basename(opt.first).replace("_", "{\_}"),
@@ -327,8 +349,8 @@ if __name__ == "__main__":
                          filename3=third_if.replace("_", "{\_}"),
                          count1=len(prefixes.index),
                          count2=len(mids.index),
-                         count3=len(suffixes.index),
-                         list=latex_list.replace("_", "\_"),
+                         count3=third_c,
+                         list=latex_list,
                          roots="\\textit{Not implemented in the current version.}")
         )
 

@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     for c in columns:
         if c in table:
+
             if opt.print_pass:
                 eprint(f" [PASS] Found column: '{c}'")
             if c in validate:
