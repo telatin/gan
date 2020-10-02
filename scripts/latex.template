@@ -7,7 +7,7 @@
 \newcommand{\obenlinks}{GAN (the Great Automatic Nomenclator)}
 
 \input{config.tex}
-
+\usepackage[normalem]{ulem}
 
 
 \begin{document}
