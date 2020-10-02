@@ -27,25 +27,9 @@ Synopsis:
 
 ```
 usage: gan-genus.py [-h] -1 FIRST -2 SECOND [-3 THIRD] -o OUTDIR [-p PREFIX] [-c CONNECTOR] [-v]
+```
 
-Generate bacterial genera with Excel input
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -1 FIRST, --first FIRST
-                        First Excel file in "GAN" format
-  -2 SECOND, --second SECOND
-                        Second Excel file in "GAN" format
-  -3 THIRD, --third THIRD
-                        Third Excel file in "GAN" format
-  -o OUTDIR, --outdir OUTDIR
-                        Output directory
-  -p PREFIX, --prefix PREFIX
-                        Output basename
-  -c CONNECTOR, --connector CONNECTOR
-                        String connecting the explanatory strings [default: of]
-  -v, --verbose         Increase output verbosity
- ```
+For full usage and installation instructions, please [check the documentation](docs/documentation.md).
 
 ## Etymology
 
