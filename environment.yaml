@@ -3,59 +3,53 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - appnope=0.1.0=py38h32f6830_1001
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
   - backcall=0.2.0=pyh9f0ad1d_0
   - backports=1.0=py_2
   - backports.functools_lru_cache=1.6.1=py_0
-  - blas=1.0=mkl
-  - ca-certificates=2020.6.20=hecda079_0
-  - certifi=2020.6.20=py38h32f6830_0
+  - ca-certificates=2020.12.8=h06a4308_0
+  - certifi=2020.12.5=py38h578d9bd_0
   - decorator=4.4.2=py_0
-  - intel-openmp=2019.4=233
-  - ipython=7.18.1=py38h1cdfbd6_0
+  - ipython=7.19.0=py38h81c977d_1
   - ipython_genutils=0.2.0=py_1
-  - jedi=0.15.2=py38_0
-  - libcxx=10.0.0=1
-  - libedit=3.1.20191231=h1de35cc_1
-  - libffi=3.3=hb1e8313_2
-  - mkl=2019.4=233
-  - mkl-service=2.3.0=py38hfbe908c_0
-  - mkl_fft=1.1.0=py38hc64f4ea_0
-  - mkl_random=1.1.1=py38h959d312_0
-  - ncurses=6.2=h0a44026_1
-  - numpy=1.19.1=py38h3b9f5b6_0
-  - numpy-base=1.19.1=py38hcfb5961_0
-  - openssl=1.1.1g=haf1e3a3_1
-  - pandas=1.1.0=py38hb1e8313_0
-  - parso=0.5.2=py_0
+  - jedi=0.17.2=py38h578d9bd_1
+  - ld_impl_linux-64=2.35.1=hed1e6ac_1
+  - libblas=3.9.0=6_openblas
+  - libcblas=3.9.0=6_openblas
+  - libffi=3.3=h58526e2_2
+  - libgcc-ng=9.3.0=h5dbcf3e_17
+  - libgfortran-ng=7.5.0=hae1eefd_17
+  - libgfortran4=7.5.0=hae1eefd_17
+  - libgomp=9.3.0=h5dbcf3e_17
+  - liblapack=3.9.0=6_openblas
+  - libopenblas=0.3.12=pthreads_hb3c22a3_1
+  - libstdcxx-ng=9.3.0=h2ae2ef3_17
+  - ncurses=6.2=h58526e2_4
+  - numpy=1.19.4=py38h18fd61f_2
+  - openssl=1.1.1i=h7f98852_0
+  - pandas=1.2.0=py38h51da96c_0
+  - parso=0.7.1=pyh9f0ad1d_0
   - pexpect=4.8.0=py38h32f6830_1
-  - pickleshare=0.7.5=py38h32f6830_1001
-  - pip=20.2.2=py38_0
-  - prompt-toolkit=3.0.7=py_0
-  - ptyprocess=0.6.0=py_1001
-  - pygments=2.7.1=py_0
-  - python=3.8.5=h26836e1_0
+  - pickleshare=0.7.5=py38h32f6830_1002
+  - pip=20.3.3=pyhd8ed1ab_0
+  - prompt-toolkit=3.0.8=pyha770c72_0
+  - ptyprocess=0.7.0=pyhd3deb0d_0
+  - pygments=2.7.3=pyhd8ed1ab_0
+  - python=3.8.6=hffdb5ce_4_cpython
   - python-dateutil=2.8.1=py_0
   - python_abi=3.8=1_cp38
-  - pytz=2020.1=py_0
-  - readline=8.0=h1de35cc_0
-  - setuptools=49.6.0=py38_0
-  - six=1.15.0=py_0
-  - sqlite=3.33.0=hffcf06c_0
-  - tk=8.6.10=hb0a8c7a_0
-  - traitlets=5.0.4=py_0
-  - wcwidth=0.2.5=pyh9f0ad1d_1
-  - wheel=0.34.2=py38_0
-  - xz=5.2.5=h1de35cc_0
-  - zlib=1.2.11=h1de35cc_3
+  - pytz=2020.5=pyhd8ed1ab_0
+  - readline=8.0=he28a2e2_2
+  - setuptools=51.0.0=py38h06a4308_2
+  - six=1.15.0=pyh9f0ad1d_0
+  - sqlite=3.34.0=h74cdb3f_0
+  - tk=8.6.10=hed695b0_1
+  - traitlets=5.0.5=py_0
+  - wcwidth=0.2.5=pyh9f0ad1d_2
+  - wheel=0.36.2=pyhd3deb0d_0
+  - xz=5.2.5=h516909a_1
+  - zlib=1.2.11=h516909a_1010
   - pip:
-    - beautifulsoup4==4.9.1
-    - chardet==3.0.4
-    - idna==2.10
-    - open-words==0.0.1
-    - requests==2.24.0
-    - soupsieve==2.0.1
-    - urllib3==1.25.10
-    - wiktionaryparser==0.0.97
     - xlrd==1.2.0
-prefix: /Users/telatina/miniconda3/envs/stoolkit
+prefix: /opt/miniconda3/envs/gan
