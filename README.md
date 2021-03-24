@@ -3,6 +3,9 @@
 # GAN: The Great Automatic Nomenclator
 The Next Million Names for Archaea and Bacteria
 
+## Citation
+
+Mark J. Pallen _et al._ **The Next Million Names for Archaea and Bacteria**, _Trends in Microbiology_ (2020). [DOI: 10.1016/j.tim.2020.10.009](https://www.sciencedirect.com/science/article/pii/S0966842X20302717)
 
 ## Principle
 
@@ -16,6 +19,13 @@ The scripts in this repository require Python (at least 3.6) and these modules:
 * itertools (ships with Python)
 * pandas (>1.0)
 * xlrd (1.2.0)
+
+To run the scripts of this repository, we suggest to create a conda environment as follows:
+```
+conda create -c conda-forge -n gan python=3.8 pandas pip ipython
+conda activate gan
+pip install xlrd==1.2.0
+```
 
 ## Genera generator
 
