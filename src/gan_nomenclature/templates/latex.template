@@ -1,0 +1,31 @@
+%!TEX TS-program = pdflatex
+%!TEX TS-options = -shell-escape
+% Author: Phil Steinhorst, p.st@wwu.de
+% https://gitlab.com/phist91/latex-templates
+% Generated with GAN, https://github.com/telatin/gan/
+
+\newcommand{\obenlinks}{GAN (the Great Automatic Nomenclator)}
+
+\input{config.tex}
+\usepackage[normalem]{ulem}
+
+
+\begin{document}
+\begin{center}
+  \begin{tabular}{|rlp{4cm}rl|}
+  \hline
+   \textbf{First file:}  & $count1 roots & $filename1 & & \\
+   \textbf{Second File:} & $count2 roots & $filename2 & & \\
+   \textbf{Third file:}  & $count3 roots & $filename3 & & \\ \hline
+\end{tabular}
+\end{center}
+
+\section*{List of genera}
+
+$list
+
+\section*{List of roots}
+
+$roots
+
+\end{document}
