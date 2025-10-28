@@ -8,14 +8,15 @@ columns = ["Language", "Gender", "Part", "Word", "Definition", "Explanation"]
 
 validate = {
     "Language": ["L.", "Gr.", "N.L.", "M.E.", "M.L."],
-    "Gender": ["masc.", "fem.", "neut.", "masc./fem."]#,
-    #"Part": ["n.", "adj.", "adv.", "gen.", "nom."]   #?
+    "Gender": ["masc.", "fem.", "neut.", "masc./fem."],  # ,
+    # "Part": ["n.", "adj.", "adv.", "gen.", "nom."]   #?
 }
 
 
 def slurp(filename):
-    with open(programdir + "/" + filename, 'r') as file:
+    with open(programdir + "/" + filename, "r") as file:
         return file.read()
+
 
 # abl.
 # ablative

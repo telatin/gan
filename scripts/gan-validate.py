@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-import argparse, sys
+import argparse
+import sys
 import pandas
 from ganlib import *
+
 
 def eprint(*args, **kwargs):
     """print to STDERR"""
@@ -9,17 +11,24 @@ def eprint(*args, **kwargs):
 
 
 if __name__ == "__main__":
-    opt_parser = argparse.ArgumentParser(description='Generate bacterial genera with Excel input')
+    opt_parser = argparse.ArgumentParser(
+        description="Generate bacterial genera with Excel input"
+    )
 
-    opt_parser.add_argument('-i', '--input',
-                            help='Excel file in "autotaxonomer" format',
-                            required=True)
+    opt_parser.add_argument(
+        "-i", "--input", help='Excel file in "autotaxonomer" format', required=True
+    )
 
-    opt_parser.add_argument("-p", "--print-pass",  action="store_true", help="Print passing steps, not only failing")
+    opt_parser.add_argument(
+        "-p",
+        "--print-pass",
+        action="store_true",
+        help="Print passing steps, not only failing",
+    )
 
-    opt_parser.add_argument('-t', '--print-table',
-                            action='store_true',
-                            help="Print table after checks")
+    opt_parser.add_argument(
+        "-t", "--print-table", action="store_true", help="Print table after checks"
+    )
 
     opt = opt_parser.parse_args()
 
@@ -31,7 +40,7 @@ if __name__ == "__main__":
         eprint(f" [FAIL] Unable to parse Excel file: {e}")
         exit(1)
     if opt.print_pass:
-        eprint(f" [PASS] Excel file is valid and indexed with column Root")
+        eprint(" [PASS] Excel file is valid and indexed with column Root")
 
     for c in columns:
         if c in table:
@@ -44,7 +53,9 @@ if __name__ == "__main__":
                         eprint(f" [FAIL] Column '{c}' contains invalid value '{item}' ")
                         errors += 1
                 if opt.print_pass:
-                    eprint(f"        - Column '{c}' checked for correct values: {validate[c]}")
+                    eprint(
+                        f"        - Column '{c}' checked for correct values: {validate[c]}"
+                    )
         else:
             eprint(f" [FAIL] Column {c} not found")
             errors += 1
@@ -52,7 +63,7 @@ if __name__ == "__main__":
     if errors:
         eprint(f" [FAIL] {errors} errors found.")
     else:
-        eprint(f" [PASS] all tests passed.")
+        eprint(" [PASS] all tests passed.")
 
     if opt.print_table:
         eprint(" [INFO] Table:")
