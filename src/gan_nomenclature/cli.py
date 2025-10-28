@@ -16,11 +16,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Generate bacterial genera with Excel input.",
     )
-    parser.add_argument("-1", "--first", required=True, help='First Excel file in "GAN" format')
-    parser.add_argument("-2", "--second", required=True, help='Second Excel file in "GAN" format')
+    parser.add_argument(
+        "-1", "--first", required=True, help='First Excel file in "GAN" format'
+    )
+    parser.add_argument(
+        "-2", "--second", required=True, help='Second Excel file in "GAN" format'
+    )
     parser.add_argument("-3", "--third", help='Third Excel file in "GAN" format')
     parser.add_argument("-o", "--outdir", required=True, help="Output directory")
-    parser.add_argument("-p", "--prefix", default="gan", help="Output basename [default: 'gan']")
+    parser.add_argument(
+        "-p", "--prefix", default="gan", help="Output basename [default: 'gan']"
+    )
     parser.add_argument(
         "-c",
         "--connector",

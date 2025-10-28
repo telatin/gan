@@ -32,9 +32,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Generate table entries for GAN using an OpenRouter-hosted LLM.",
     )
-    parser.add_argument("-i", "--input", required=True, help="Input text file or '-' for stdin")
+    parser.add_argument(
+        "-i", "--input", required=True, help="Input text file or '-' for stdin"
+    )
     parser.add_argument("-o", "--output", required=True, help="Output TSV file path")
-    parser.add_argument("--api", dest="api_key", default=None, help="OpenRouter API key")
+    parser.add_argument(
+        "--api", dest="api_key", default=None, help="OpenRouter API key"
+    )
     parser.add_argument(
         "-m",
         "--model",
@@ -229,7 +233,9 @@ def request_openrouter(
                 timeout=timeout,
             )
             if response.status_code == 401:
-                raise RuntimeError("Unauthorized: invalid or missing OpenRouter API key.")
+                raise RuntimeError(
+                    "Unauthorized: invalid or missing OpenRouter API key."
+                )
             response.raise_for_status()
             payload = response.json()
             content = payload["choices"][0]["message"]["content"].strip()
@@ -239,11 +245,13 @@ def request_openrouter(
                 raise ValueError(
                     f"Model returned non-JSON content: {exc}\n{content[:2000]}"
                 ) from exc
-        except (requests.RequestException, ValueError) as error:
+        except (requests.RequestException, ValueError):
             if attempt == max_retries - 1:
                 raise
             time.sleep(backoff**attempt)
-    raise RuntimeError("Exhausted retries while calling OpenRouter.")  # pragma: no cover
+    raise RuntimeError(
+        "Exhausted retries while calling OpenRouter."
+    )  # pragma: no cover
 
 
 def call_openrouter_rows(
@@ -328,7 +336,9 @@ def quality_filter_row(
             raise ValueError(f"Quality filter returned unexpected list: {parsed!r}")
 
     if not isinstance(parsed, dict):
-        raise ValueError(f"Quality filter returned non-object JSON: {type(parsed).__name__}")
+        raise ValueError(
+            f"Quality filter returned non-object JSON: {type(parsed).__name__}"
+        )
 
     result: Dict[str, Any] = {}
     for key in QUALITY_KEYS:

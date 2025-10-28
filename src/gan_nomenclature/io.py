@@ -15,7 +15,9 @@ OPTIONAL_COLUMNS = ["Part", "Definition", "Explanation"]
 
 
 def _strip_series(series: pd.Series) -> pd.Series:
-    return series.apply(lambda value: value.strip() if isinstance(value, str) else value)
+    return series.apply(
+        lambda value: value.strip() if isinstance(value, str) else value
+    )
 
 
 def read_root_table(filename: PathLike) -> pd.DataFrame:
@@ -42,14 +44,14 @@ def read_root_table(filename: PathLike) -> pd.DataFrame:
     for column in REQUIRED_COLUMNS:
         if column not in table.columns:
             raise ValueError(
-                f"Required column \"{column}\" not found in the Excel file \"{filename}\"."
+                f'Required column "{column}" not found in the Excel file "{filename}".'
             )
         table[column] = _strip_series(table[column])
 
     for column in OPTIONAL_COLUMNS:
         if column not in table.columns:
             warnings.warn(
-                f"Suggested column \"{column}\" not found in the Excel file \"{filename}\".",
+                f'Suggested column "{column}" not found in the Excel file "{filename}".',
                 stacklevel=2,
             )
         else:

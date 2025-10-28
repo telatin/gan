@@ -16,8 +16,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Convert each worksheet in an Excel workbook into a TSV file.",
     )
-    parser.add_argument("-i", "--input", required=True, help="Path to the input Excel workbook")
-    parser.add_argument("-o", "--output", help="Directory where TSV files will be written")
+    parser.add_argument(
+        "-i", "--input", required=True, help="Path to the input Excel workbook"
+    )
+    parser.add_argument(
+        "-o", "--output", help="Directory where TSV files will be written"
+    )
     parser.add_argument(
         "-c",
         "--stdout",

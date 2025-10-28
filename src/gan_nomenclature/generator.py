@@ -8,7 +8,7 @@ import re
 from dataclasses import dataclass
 from importlib import resources
 from string import Template
-from typing import Iterable, List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import pandas as pd
 
@@ -135,9 +135,7 @@ def combine_etymology(
                 continue
 
             if column in {"Language", "Gender", "Part"}:
-                etymology_html_parts.append(
-                    f'<span class="glossary">{value}</span>'
-                )
+                etymology_html_parts.append(f'<span class="glossary">{value}</span>')
                 tokens.append(("glossary", value))
             elif column == "Word":
                 etymology_html_parts.append(f"<em>{value}</em>,")
@@ -308,4 +306,6 @@ def generate_outputs(
         roots="\\textit{Not implemented in the current version.}",
     )
 
-    return GenerationResult(entries=entries, html=html_output, latex=latex_output, json_data=json_data)
+    return GenerationResult(
+        entries=entries, html=html_output, latex=latex_output, json_data=json_data
+    )
