@@ -21,21 +21,9 @@ bibliography: paper.bib
 
 `nomenclator` is a Python package that automates the creation of linguistically valid Latin binomials for bacterial and archaeal taxa, based on the "Great Automated Nomenclator" script [@Pallen2021].
 Bacterial nomenclature requires Latin or Latinized names that conform to the rules of the International Code of Nomenclature of Prokaryotes (ICNP) and Latin grammar [@Parker2019, @Oren2019].
-The tool generates taxonomic names by combinatorially concatenating roots from 
-Latin and Greek starting from two Excel files containing curated lists of roots to be combinatorially assembled into genus and species names. 
-
-
-
-# Statement of Need
-
-The exponential growth in microbial species discovery through culturomics, genomics, and metagenomics has created an urgent need for millions of new taxonomic names—far exceeding the capacity of manual expert-driven nomenclature.
-`nomenclator` addresses this bottleneck by providing pre-generated, grammatically correct names that can be used "off the shelf" as needed.
-
-Creating valid taxonomic names is challenging because it requires:
-
-1. **Classical language expertise**: Names must follow Latin grammar rules with proper gender agreement and declension
-2. **ICNP compliance**: The nomenclature code contains 65 rules and numerous recommendations
-3. **Manual quality control**: Each name requires expert review, creating a significant bottleneck
+The tool generates taxonomic names by combinatorially concatenating roots from
+Latin and Greek starting from two Excel files containing curated lists of 
+roots to be combinatorially assembled into genus and species names.
 
 
 # Implementation and Features
@@ -55,6 +43,7 @@ The package exports these CLI tools:
 
 - `gan-genus`: Generates genus names based on user-defined parameters (number of names, roots to use, etc.)
 - `gan-init`: Initializes a project directory with necessary files and templates
+- `gan-aidraft`: Using OpenRouter API, generates draft etymologies given a text file used as context (e.g. draft of a paper describing the biome where the new taxa were isolated)
 - `xls2tsv`: Converts Excel files with taxonomic data into TSV format for further processing
 
 ## Example input and output
@@ -73,9 +62,10 @@ The programme's output can be saved as HTML or PDF files. An example is:
 * **Admissaristercoricola** - Etymology: *L. masc. n. admissarius*, a stallion used for breeding; *L. neut. n. stercus*, excrement; *N.L. masc./fem. n. cola*, an inhabitant; `Admissaristercoricola`: a microbe of the faeces of horses.
 * **Admissaristercoradaptatus** - Etymology: *L. masc. n. admissarius*, a stallion used for breeding; *L. neut. n. stercus*, excrement; *L. masc. n. adaptatus*, something adapted; `Admissaristercoradaptatus`: a microbe of the faeces of horses.
 * **Admissaristercorihabitans** - Etymology: *L. masc. n. admissarius*, a stallion used for breeding; *L. neut. n. stercus*, excrement; *L. masc. n. habitans*, an inhabitant; `Admissaristercorihabitans`: a microbe of the faeces of horses.
+
 # Acknowledgments
 
-This software originated from research conducted with Mark J. Pallen and Aharon Oren, published in *Trends in Microbiology* [@pallen2021], where it demonstrated the concept of mass nomenclature generation for prokaryotic taxonomy.
+This software originated from research conducted with Mark J. Pallen and Aharon Oren, published in *Trends in Microbiology* [@pallen2021] as *Great Automatic Nomenclator*, where it demonstrated the concept of large scale nomenclature generation for prokaryotic taxonomy. This paper describe the `nomenclator` package, which implements and extends the original script providing a Python package with CLI and additional features.
 
 # Funding
 

@@ -1,1 +1,4 @@
-paper/.md
+*.pdf
+*.html
+*.crossref
+*.tex
