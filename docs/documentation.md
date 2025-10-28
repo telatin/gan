@@ -10,11 +10,7 @@ To install the required dependencies, an option is to use the Miniconda package 
 Commands:
 
 ```bash
-# Create the environment (run it once)
-conda env create -f environment.yml
-
-# Activate the environment to use the scripts
-conda activate gan
+pip install nomenclator
 ```
 
 ## Usage

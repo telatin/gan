@@ -13,19 +13,32 @@ To generate a large number of new names, we apply a combinatorial approach start
 
 ![Gan flowchart](docs/gan_concept_wiki.png)
 
-## Dependencies
+## Installation
 
-The scripts in this repository require Python (at least 3.6) and these modules:
-* itertools (ships with Python)
-* pandas (>1.0)
-* xlrd (1.2.0)
+GAN is available on PyPI as `gan-nomenclature` and installs with Python 3.8+:
 
-To run the scripts of this repository, we suggest to create a conda environment as follows:
+```
+pip install gan-nomenclature
+```
+
+This command installs the library together with its dependencies (`pandas`, `openpyxl`, ...).
+
+To work in an isolated environment, you can create one with conda and then install the package from PyPI:
 ```
 conda create -c conda-forge -n gan python=3.8 pandas pip ipython
 conda activate gan
-pip install xlrd==1.2.0
+pip install gan-nomenclature
 ```
+
+## Command-line tools
+
+Installing the package provides a small suite of CLI helpers:
+
+- `gan-genus`: generate JSON/HTML/LaTeX outputs from two or three curated root tables.
+- `gan-init`: scaffold Excel templates (optionally populated with example rows) for use with `gan-genus`.
+- `xls2tsv`: convert each worksheet of a workbook into a separate TSV file.
+
+Each command offers `--help` for additional options and usage examples.
 
 ## Genera generator
 
@@ -36,7 +49,7 @@ A set of two (or three) Excel tables formatted as shown below is used to generat
 Synopsis:
 
 ```
-usage: gan-genus.py [-h] -1 FIRST -2 SECOND [-3 THIRD] -o OUTDIR [-p PREFIX] [-c CONNECTOR] [-v]
+usage: gan-genus [-h] -1 FIRST -2 SECOND [-3 THIRD] -o OUTDIR [-p PREFIX] [-c CONNECTOR] [-v]
 ```
 
 For full usage and installation instructions, please [check the documentation](docs/documentation.md).
@@ -53,4 +66,3 @@ Using three small files in the _input\_test_ directory (8, 11 and 8 words, respe
 
 "*The great automatic nomenclaturer*" is a reference to a short story ("_The Great Automatic Grammatizator_") 
 written by the British author Roald Dahl [[link](https://en.wikipedia.org/wiki/The_Great_Automatic_Grammatizator)].
-
