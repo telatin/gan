@@ -1,0 +1,8 @@
+Abstract
+Background: The horse plays crucial roles across the globe, including in horseracing, as a working and companion animal and as a food animal. The horse hindgut microbiome makes a key contribution in turning a high fibre diet into body mass and horsepower. However, despite its importance, the horse hindgut microbiome remains largely undefined. Here, we applied culture-independent shotgun metagenomics to thoroughbred equine faecal samples to deliver novel insights into this complex microbial community.
+
+Results: We performed metagenomic sequencing on five equine faecal samples to construct 123 high- or medium-quality metagenome-assembled genomes from Bacteria and Archaea. In addition, we recovered nearly 200 bacteriophage genomes. We document surprising taxonomic diversity, encompassing dozens of novel or unnamed bacterial genera and species, to which we have assigned new Candidatus names. Many of these genera are conserved across a range of mammalian gut microbiomes.
+
+Conclusions: Our metagenomic analyses provide new insights into the bacterial, archaeal and bacteriophage components of the horse gut microbiome. The resulting datasets provide a key resource for future high-resolution taxonomic and functional studies on the equine gut microbiome.
+
+Keywords: Equine; Metagenomics; Microbiome; Sequencing; Taxonomy.

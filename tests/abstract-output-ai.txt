@@ -1,0 +1,5 @@
+Language	Gender	Part	Word	Root	Definition	Explanation
+L.	masc.	n.	equus	equ-	horse	horses
+L.	masc.	n.	caballus	caball-	horse	horses
+L.	masc.	n.	hippos	hipp-	horse	horses
+L.	masc.	n.	genus	gen-	genus	taxonomy
