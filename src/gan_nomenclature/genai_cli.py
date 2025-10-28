@@ -165,6 +165,28 @@ def unwrap_rows(
     return None
 
 
+def extract_json_from_response(content: str) -> Any:
+    """Strip markdown fences and extract JSON from model response."""
+    content = content.strip()
+
+    # Remove markdown code fences if present
+    if content.startswith("```"):
+        lines = content.split("\n")
+        # Remove opening fence (```json or ```)
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        # Remove closing fence
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        content = "\n".join(lines).strip()
+
+    # Try direct parse
+    if content:
+        return json.loads(content)
+
+    raise json.JSONDecodeError("Empty response after cleaning", "", 0)
+
+
 def request_openrouter(
     api_key: str,
     model: str,
@@ -202,10 +224,12 @@ def request_openrouter(
             payload = response.json()
             content = payload["choices"][0]["message"]["content"].strip()
             try:
-                return json.loads(content)
+                return extract_json_from_response(content)
             except json.JSONDecodeError as exc:  # pragma: no cover - defensive path
                 raise ValueError(
-                    f"Model returned non-JSON content: {exc}\n{content[:2000]}"
+                    f"Model returned non-JSON content: {exc}\n"
+                    f"Preview (first 500 chars): {content[:500]}\n"
+                    f"Preview (last 300 chars): {content[-300:]}"
                 ) from exc
         except (requests.RequestException, ValueError):
             if attempt == max_retries - 1:
@@ -449,6 +473,13 @@ TASK:
 Return ONLY a JSON array (no preface, no code fences), where each element is an object with EXACTLY these keys:
 {list(REQUIRED_COLS)}
 
+**CRITICAL OUTPUT FORMAT:**
+- Your response MUST start with [ and end with ]
+- Do NOT wrap in ```json or ``` markdown code fences
+- Do NOT include any explanatory text before or after the JSON
+- Do NOT include comments
+- Output ONLY valid JSON array
+
 GUIDELINES:
 - Language: 
   * 'L.' for Classical Latin
@@ -535,6 +566,12 @@ Return a JSON object with the following keys:
 - reason (string <= 160 characters): concise justification referencing any issues
 - issues (array of short issue codes): empty if acceptable; use codes like ["not_latin", "bad_gender", "bad_root", "modern_english", "bad_language_tag", "root_not_latinized", "invalid_genitive", "missing_article"]
 - normalized_row (object, optional): if minor fixes make the entry acceptable, provide corrected row
+
+**CRITICAL OUTPUT FORMAT:**
+- Your response MUST be valid JSON starting with {{ and ending with }}
+- Do NOT wrap in ```json or ``` markdown code fences
+- Do NOT include explanatory text before or after the JSON
+- Output ONLY the JSON object
 
 VALIDATION RULES:
 

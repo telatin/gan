@@ -39,6 +39,7 @@ Installing the package provides a small suite of CLI helpers:
 - `gan-aidraft`: generate draft etymologies using OpenRouter-hosted LLMs starting from a text file used as context (e.g. a draft of a paper describing the biome where the new taxa were isolated).
 - `xls2tsv`: convert each worksheet of a workbook into a separate TSV file.
 - `tsv2xls`: convert TSV files back into Excel format.
+
 Each command offers `--help` for additional options and usage examples.
 
 ## Genera generator
