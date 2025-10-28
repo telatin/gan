@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gan-nomenclature"
-version = "0.1.0"
-description = "Generate bacterial nomenclature Latin names using a combinatorial approach."
+version = "1.1.0"
+description = "Generate bacterial nomenclature Latin names using a combinatorial approach, as decribed in Pallen et al. (2021) 'The Next Million Names for Archaea and Bacteria'"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
 authors = [
-    { name = "GAN contributors" }
+    { name = "Andrea Telatin" }
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -29,6 +29,8 @@ test = [
 
 [project.scripts]
 "gan-genus" = "gan_nomenclature.cli:main"
+"xls2tsv" = "gan_nomenclature.xls2tsv:main"
+"gan-init" = "gan_nomenclature.init_cli:main"
 
 [project.urls]
 Homepage = "https://github.com/telatin/gan"

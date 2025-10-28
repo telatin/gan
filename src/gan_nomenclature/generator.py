@@ -199,9 +199,12 @@ def generate_entries(
 
 
 def _load_template(filename: str) -> Template:
-    data = resources.files("gan_nomenclature.templates").joinpath(filename).read_text(
-        encoding="utf-8"
-    )
+    package = "gan_nomenclature.templates"
+    try:
+        data = resources.files(package).joinpath(filename).read_text(encoding="utf-8")
+    except (AttributeError, TypeError):
+        # Fallback for older importlib.resources implementations (e.g. Python 3.9)
+        data = resources.read_text(package, filename, encoding="utf-8")
     return Template(data)
 
 
