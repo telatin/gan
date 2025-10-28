@@ -130,3 +130,7 @@ dmypy.json
 output/
 the_real_final_input/
 .DS_Store
+.vscode/
+.idea/
+*.md
+!README.md

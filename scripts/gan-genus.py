@@ -6,7 +6,7 @@ import itertools
 import os, sys, json, re
 from ganlib import *
 from IPython import embed;
-import codecs
+
 from string import Template
 
 
@@ -260,7 +260,7 @@ if __name__ == "__main__":
 
     opt = opt_parser.parse_args()
 
-    strip_ending = re.compile(f"\s*{opt.connector}\s*$")
+    strip_ending = re.compile(rf"\s*{re.escape(opt.connector)}\s*$")
 
     eprint("          ----- G A N  -----        ")
     eprint("   the great automatic nomenclator  ")
@@ -328,7 +328,7 @@ if __name__ == "__main__":
 
 
     eprint("Saving HTML:" + opt.outdir + "/" + opt.prefix + ".html")
-    with codecs.open(opt.outdir + "/" + opt.prefix + ".html", "w", "utf-8")  as file:
+    with open(opt.outdir + "/" + opt.prefix + ".html", "w", encoding="utf-8")  as file:
         file.write(html.safe_substitute(total=counter,
                         filename1=os.path.basename(opt.first),
                         filename2=os.path.basename(opt.second),
@@ -360,18 +360,18 @@ if __name__ == "__main__":
 
     latex_out = opt.outdir + "/" + opt.prefix + ".tex"
     eprint("Saving LaTeX:" + latex_out)
-    latex_list = re.sub('existing\s+genus\s+(\w+)', 'existing genus \\\\textit{\\1}', latex_list.replace("_", "\_"))
-    latex_list = re.sub('existing\s+species\s+(\w+\s+\w+)', 'existing genus \\\\textit{\\1}', latex_list.replace("_", "\_"))
+    latex_list = re.sub(r'existing\s+genus\s+(\w+)', r'existing genus \\textit{\1}', latex_list.replace("_", r"\_"))
+    latex_list = re.sub(r'existing\s+species\s+(\w+\s+\w+)', r'existing genus \\textit{\1}', latex_list.replace("_", r"\_"))
 
-    with codecs.open(latex_out, "w", "utf-8")  as file:
+    with open(latex_out, "w", encoding="utf-8")  as file:
         file.write(latex.safe_substitute(
-                        filename1=os.path.basename(opt.first).replace("_", "{\_}"),
-                         filename2=os.path.basename(opt.second).replace("_", "{\_}"),
-                         filename3=third_if.replace("_", "{\_}"),
+                        filename1=os.path.basename(opt.first).replace("_", r"{\_}"),
+                         filename2=os.path.basename(opt.second).replace("_", r"{\_}"),
+                         filename3=third_if.replace("_", r"{\_}"),
                          count1=len(prefixes.index),
                          count2=len(mids.index),
                          count3=third_c,
                          list=latex_list,
-                         roots="\\textit{Not implemented in the current version.}")
+                         roots=r"\textit{Not implemented in the current version.}")
         )
 
