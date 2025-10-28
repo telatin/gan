@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+authors:
+  - family-names: Telatin
+    given-names: Andrea
+    orcid: https://orcid.org/0000-0001-7619-281X
+title: "Great Automatic Nomenclator"
+version: 1.1.0
+date-released: 2021-04-01
+repository-code: "https://github.com/telatin/gan"
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Pallen
+      given-names: Mark J
+    - family-names: Telatin
+      given-names: Andrea
+    - family-names: Oren
+      given-names: Aharon
+  title: "The next million names for Archaea and Bacteria"
+  journal: "Trends in Microbiology"
+  volume: 29
+  issue: 4
+  start: 289
+  end: 298
+  year: 2021
+  month: 4
+  doi: 10.1016/j.tim.2020.10.009
