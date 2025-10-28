@@ -34,6 +34,7 @@ test = [
 "gan-init" = "gan_nomenclature.init_cli:main"
 "gan-ai" = "gan_nomenclature.genai_cli:main"
 "gan-validate" = "gan_nomenclature.validate_cli:main"
+"tsv2xls" = "gan_nomenclature.tsv2xls:main"
 
 [project.urls]
 Homepage = "https://github.com/telatin/gan"

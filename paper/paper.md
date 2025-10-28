@@ -53,6 +53,7 @@ The package exports these CLI tools:
 - `gan-validate`: Validates the input Excel files for correct format and content
 - `gan-aidraft`: Using OpenRouter API, generates draft etymologies given a text file used as context (e.g. draft of a paper describing the biome where the new taxa were isolated)
 - `xls2tsv`: Converts Excel files with taxonomic data into TSV format for further processing
+- `tsv2xls`: Converts TSV files back into Excel format
 
 
 ## Example input and output
