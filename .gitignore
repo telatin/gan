@@ -133,4 +133,4 @@ the_real_final_input/
 .vscode/
 .idea/
 ./*.md
-!README.md
+!README.mdgenai.py

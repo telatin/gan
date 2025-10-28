@@ -17,7 +17,7 @@ To generate a large number of new names, we apply a combinatorial approach start
 
 GAN is available on PyPI as `gan-nomenclature` and installs with Python 3.8+:
 
-```
+```bash
 pip install gan-nomenclature
 ```
 
@@ -48,7 +48,7 @@ A set of two (or three) Excel tables formatted as shown below is used to generat
 
 Synopsis:
 
-```
+```bash
 usage: gan-genus [-h] -1 FIRST -2 SECOND [-3 THIRD] -o OUTDIR [-p PREFIX] [-c CONNECTOR] [-v]
 ```
 
