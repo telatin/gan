@@ -116,7 +116,6 @@ def write_tsv(rows: Iterable[Dict[str, str]], path: str) -> None:
             handle.write("\t".join(row.get(col, "") for col in REQUIRED_COLS) + "\n")
 
 
-
 def unwrap_rows(
     payload: Any,
     *,
@@ -241,8 +240,6 @@ def call_openrouter_rows(
     )
 
 
-
-
 def quality_filter_row(
     row: Dict[str, str],
     api_key: str,
@@ -343,7 +340,9 @@ def run(
     filter_model = quality_model or model
     for idx, row in enumerate(rows, start=1):
         try:
-            verdict = quality_filter_row(row, api_key, filter_model, max_retries=max_retries, timeout=timeout)
+            verdict = quality_filter_row(
+                row, api_key, filter_model, max_retries=max_retries, timeout=timeout
+            )
         except Exception as filter_error:
             emit(
                 f"[WARN] Quality filter failed for row {idx} "
@@ -366,7 +365,9 @@ def run(
 
             if not all(chosen.get(col, "").strip() for col in REQUIRED_COLS):
                 dropped += 1
-                missing = [col for col in REQUIRED_COLS if not chosen.get(col, "").strip()]
+                missing = [
+                    col for col in REQUIRED_COLS if not chosen.get(col, "").strip()
+                ]
                 emit(
                     f"[DROP] Row {idx}: {row.get('Word', '') or '(unnamed)'} — "
                     f"missing values for {', '.join(missing)}"
@@ -427,6 +428,7 @@ def main(argv: List[str] | None = None) -> int:
     except Exception as exc:
         sys.stderr.write(f"ERROR: {exc}\n")
         return 1
+
 
 def build_messages(context_text: str) -> List[Dict[str, str]]:
     """
@@ -520,7 +522,9 @@ def build_quality_messages(row: Dict[str, str]) -> List[Dict[str, str]]:
         "Latinization, modern English masquerading as Latin, or malformed roots unsuitable "
         "for taxonomic names."
     )
-    row_json = json.dumps(row, ensure_ascii=False, indent=2)  # Changed to False to preserve Greek
+    row_json = json.dumps(
+        row, ensure_ascii=False, indent=2
+    )  # Changed to False to preserve Greek
     user = f"""
 ENTRY:
 {row_json}
@@ -592,6 +596,7 @@ DECISION:
         {"role": "system", "content": system},
         {"role": "user", "content": user},
     ]
+
 
 if __name__ == "__main__":  # pragma: no cover
     sys.exit(main())

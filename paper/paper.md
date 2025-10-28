@@ -24,6 +24,8 @@ Bacterial nomenclature requires Latin or Latinized names that conform to the rul
 The tool generates taxonomic names by combinatorially concatenating roots from
 Latin and Greek starting from two Excel files containing curated lists of 
 roots to be combinatorially assembled into genus and species names.
+`nomenclator` encapsulates the original script, and adds new features, such as an integration with LLMs
+to draft an initial roots table staring from a text file used as context (e.g. a draft of a paper describing the biome where the new taxa were isolated).
 
 # Statement of need
 
@@ -48,8 +50,10 @@ The package exports these CLI tools:
 
 - `gan-genus`: Generates genus names based on user-defined parameters (number of names, roots to use, etc.)
 - `gan-init`: Initializes a project directory with necessary files and templates
+- `gan-validate`: Validates the input Excel files for correct format and content
 - `gan-aidraft`: Using OpenRouter API, generates draft etymologies given a text file used as context (e.g. draft of a paper describing the biome where the new taxa were isolated)
 - `xls2tsv`: Converts Excel files with taxonomic data into TSV format for further processing
+
 
 ## Example input and output
 
