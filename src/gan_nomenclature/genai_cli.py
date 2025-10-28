@@ -23,7 +23,7 @@ REQUIRED_COLS: Sequence[str] = (
     "Explanation",
 )
 
-DEFAULT_MODEL = "openai/gpt-4o-mini"
+DEFAULT_MODEL = "openai/gpt-oss-120b:exacto"
 QUALITY_KEYS = ("keep", "reason", "issues", "normalized_row")
 QUALITY_TRUE_VALUES = {"true", "yes", "1", "ok", "keep", "pass"}
 
@@ -115,43 +115,6 @@ def write_tsv(rows: Iterable[Dict[str, str]], path: str) -> None:
         for row in rows:
             handle.write("\t".join(row.get(col, "") for col in REQUIRED_COLS) + "\n")
 
-
-def build_messages(context_text: str) -> List[Dict[str, str]]:
-    """
-    Prompt that asks the LLM to produce raw candidate rows.
-    Greek transliterations must use ASCII and Latinized forms.
-    """
-    system = (
-        "You are a meticulous classical philologist and lexicographer. "
-        "You read a context passage and propose a compact lexicon table of "
-        "relevant lexemes (Latin/Latinized Greek preferred when applicable), including mythic names "
-        "and derivatives that illuminate the text's topic."
-    )
-    user = f"""
-CONTEXT:
-{context_text}
-
-TASK:
-Return ONLY a JSON array (no preface, no code fences), where each element is an object with EXACTLY these keys:
-{list(REQUIRED_COLS)}
-
-GUIDELINES:
-- Language: use 'L.' for Latin, 'Gr.' for Greek, or a concise scholarly abbreviation (e.g., 'Fr.', 'It.', 'Ar.').
-- Gender: masculine 'masc.', feminine 'fem.', neuter 'neut.'; for mixed write 'masc./fem.' etc.; if unknown, leave empty string.
-- Part: e.g., 'n.' (noun), 'adj.', 'v.'; if unknown, leave empty string.
-- Word: lemma (ASCII only; Greek lexemes MUST be Latinized, e.g., 'hippos' not 'ἵππος').
-- Root: plausible stem/root (ASCII only; Latinize Greek stems, e.g., 'hipp-' not 'ἵππ-'); if unknown, provide a reasonable normalized stem or leave empty string.
-- Definition: a short gloss (English).
-- Explanation: a one- or two-word topical tag best matching the context (e.g., 'horses', 'metagenomics', 'microbiome').
-- Focus on the main theme inferred from the context (e.g., if horses are central, prefer equine lexemes such as Latin 'equus', Greek 'hippos').
-- Include 10–25 entries, no duplicates, high precision; prefer well-attested forms.
-- If the context is not classical, still map to informative roots/loanwords that clarify the topic.
-"""
-
-    return [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ]
 
 
 def unwrap_rows(
@@ -278,38 +241,6 @@ def call_openrouter_rows(
     )
 
 
-def build_quality_messages(row: Dict[str, str]) -> List[Dict[str, str]]:
-    """Craft prompt to validate and score a single lexicon row."""
-    system = (
-        "You are a classical philologist vetting lexicon entries intended as Latin binomial roots. "
-        "You ruthlessly reject entries that are modern English, malformed, or improperly Latinized."
-    )
-    row_json = json.dumps(row, ensure_ascii=True, indent=2)
-    user = f"""
-ENTRY:
-{row_json}
-
-TASK:
-Return a JSON object with the following keys:
-- keep (boolean): true only if the entry is a well-formed Latin or Latinized Greek component suitable for a binomial.
-- reason (string <= 160 characters): concise justification referencing any issues.
-- issues (array of short issue codes): empty if the entry is acceptable; use codes such as ["not_latin", "bad_gender", "bad_root", "modern_english", "bad_language_tag"].
-- normalized_row (object, optional): if small fixes make the entry acceptable, supply the corrected row with the same keys as the original.
-
-GATEKEEPING RULES:
-- Reject modern English words presented as Latin (e.g., 'insight').
-- Word/Root must be ASCII and Latin or Latinized Greek; no diacritics or Greek script.
-- Language must align with the lemma (e.g., 'L.' for Latin, 'Gr.' for Latinized Greek terms).
-- Gender and Part must be plausible for the lemma; leave empty if unknown.
-- Definition and Explanation should be brief scholarly English.
-- Prefer classical or scholarly Neo-Latin vocabulary. Reject pop culture or informal terms.
-- If the entry is acceptable but can be trivially improved (e.g., adjust root ending), set keep=true and include normalized_row with corrections.
-- If unacceptable, set keep=false.
-"""
-    return [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ]
 
 
 def quality_filter_row(
@@ -412,13 +343,7 @@ def run(
     filter_model = quality_model or model
     for idx, row in enumerate(rows, start=1):
         try:
-            verdict = quality_filter_row(
-                row,
-                api_key,
-                filter_model,
-                max_retries=max_retries,
-                timeout=timeout,
-            )
+            verdict = quality_filter_row(row, api_key, filter_model, max_retries=max_retries, timeout=timeout)
         except Exception as filter_error:
             emit(
                 f"[WARN] Quality filter failed for row {idx} "
@@ -438,6 +363,16 @@ def run(
             chosen = row
             if isinstance(normalized_row, dict) and normalized_row:
                 chosen = coerce_row(normalized_row)
+
+            if not all(chosen.get(col, "").strip() for col in REQUIRED_COLS):
+                dropped += 1
+                missing = [col for col in REQUIRED_COLS if not chosen.get(col, "").strip()]
+                emit(
+                    f"[DROP] Row {idx}: {row.get('Word', '') or '(unnamed)'} — "
+                    f"missing values for {', '.join(missing)}"
+                )
+                continue
+
             filtered_rows.append(chosen)
             emit(
                 f"[KEEP] Row {idx}: {chosen.get('Word', '') or '(unnamed)'} — "
@@ -493,6 +428,170 @@ def main(argv: List[str] | None = None) -> int:
         sys.stderr.write(f"ERROR: {exc}\n")
         return 1
 
+def build_messages(context_text: str) -> List[Dict[str, str]]:
+    """
+    Prompt that asks the LLM to produce raw candidate rows.
+    Greek script allowed in Word, but Root must be Latinized ASCII.
+    """
+    system = (
+        "You are a meticulous classical philologist and lexicographer specializing in "
+        "scientific nomenclature. You read context passages and propose compact lexicon "
+        "tables of relevant Latin, Greek, and New Latin lexemes suitable for binomial nomenclature, "
+        "including derivatives, technical terms, and mythological names that illuminate the text's topic."
+    )
+    user = f"""
+CONTEXT:
+{context_text}
+
+TASK:
+Return ONLY a JSON array (no preface, no code fences), where each element is an object with EXACTLY these keys:
+{list(REQUIRED_COLS)}
+
+GUIDELINES:
+- Language: 
+  * 'L.' for Classical Latin
+  * 'Gr.' for Classical Greek
+  * 'N.L.' for New Latin (modern scientific coinages)
+  * Other scholarly abbreviations as appropriate (e.g., 'Fr.', 'It.', 'Ar.')
+
+- Gender: 
+  * Use 'masc.', 'fem.', 'neut.' with trailing space for consistency
+  * For mixed/variable gender: 'masc./fem.', 'fem./neut.', etc.
+  * If unknown or not applicable, leave empty string
+
+- Part:
+  * Standard: 'n.' (noun), 'adj.' (adjective), 'v.' (verb), 'adv.' (adverb)
+  * Specialized: 'adjectival noun', 'dim. n.' (diminutive), 'suffix', 'n.pl.' (noun plural)
+  * If unknown, leave empty string
+
+- Word:
+  * The lemma in its original form
+  * Greek lexemes SHOULD include Greek script (e.g., 'γᾰστήρ', 'θρίξ', 'κόπρος')
+  * Latin lexemes in standard Latin orthography (e.g., 'stomachus', 'bacterium')
+  * Use proper diacritics where appropriate
+
+- Root:
+  * **CRITICAL**: Must be ASCII-only Latinized form suitable for binomial construction
+  * For Latin nouns: provide genitive stem (e.g., 'stomachi' from stomachus, 'denti' from dens)
+  * For Greek: provide Latinized combining form (e.g., 'gastro' from γᾰστήρ, 'tricho' from θρίξ)
+  * For compounds: use standard scientific combining form (e.g., 'copro', 'entero', 'dermato')
+  * Remove all diacritics and Greek characters; must be valid ASCII
+
+- Definition:
+  * Concise English gloss including articles ('a', 'an', 'the')
+  * Examples: 'the stomach', 'a tooth', 'an archaeon', 'dung', 'the skin'
+  * Keep brief but complete (typically 2-6 words)
+
+- Explanation:
+  * A topical tag or hierarchical descriptor matching the context theme
+  * Can be simple: 'a microbe', 'the mouth', 'faeces', 'the skin'
+  * Can be hierarchical: 'Host-associated-Animals-System-Digestive-Oral'
+  * Should reflect the main theme inferred from context
+
+FOCUS:
+- Analyze the context to identify the main theme (e.g., microbiology, anatomy, horses, etc.)
+- Prioritize lexemes directly relevant to that theme
+- Include 10–25 high-quality entries
+- No duplicates; prefer well-attested classical forms
+- For scientific contexts, include both technical terms and anatomical/descriptive roots
+- Ensure Root column is always Latinized and ASCII-compatible for valid nomenclature
+
+VALIDATION:
+- Word can contain Greek script (γ, θ, ρ, etc.) for Greek lexemes
+- Root MUST be ASCII-only (a-z, hyphens) and Latinized
+- All fields properly formatted with consistent spacing
+- Definitions include appropriate articles
+"""
+
+    return [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+
+
+def build_quality_messages(row: Dict[str, str]) -> List[Dict[str, str]]:
+    """
+    Craft prompt to validate and score a single lexicon row.
+    Enforces that Root is Latinized ASCII while Word can be Greek script.
+    """
+    system = (
+        "You are a classical philologist and nomenclature expert vetting lexicon entries "
+        "for scientific binomial nomenclature. You ruthlessly reject entries with improper "
+        "Latinization, modern English masquerading as Latin, or malformed roots unsuitable "
+        "for taxonomic names."
+    )
+    row_json = json.dumps(row, ensure_ascii=False, indent=2)  # Changed to False to preserve Greek
+    user = f"""
+ENTRY:
+{row_json}
+
+TASK:
+Return a JSON object with the following keys:
+- keep (boolean): true only if the entry is well-formed and suitable for scientific nomenclature
+- reason (string <= 160 characters): concise justification referencing any issues
+- issues (array of short issue codes): empty if acceptable; use codes like ["not_latin", "bad_gender", "bad_root", "modern_english", "bad_language_tag", "root_not_latinized", "invalid_genitive", "missing_article"]
+- normalized_row (object, optional): if minor fixes make the entry acceptable, provide corrected row
+
+VALIDATION RULES:
+
+1. **Language Field**:
+   - Must be 'L.' (Latin), 'Gr.' (Greek), 'N.L.' (New Latin), or valid scholarly abbreviation
+   - Must align with the Word lemma (Greek words need 'Gr.', Latin words need 'L.' or 'N.L.')
+
+2. **Word Field**:
+   - Latin words: standard Latin orthography (ASCII or common Latin extensions)
+   - Greek words: SHOULD contain Greek script (γ, θ, κ, etc.) OR be Latinized
+   - Accept either Greek script or Latinized forms in Word
+   - Reject modern English words (e.g., 'insight', 'download')
+
+3. **Root Field** (CRITICAL):
+   - **MUST be ASCII-only**: no Greek script, no diacritics
+   - **MUST be Latinized**: even for Greek words
+   - For Latin nouns: proper genitive stem (e.g., 'stomachi', 'denti', 'cuti')
+   - For Greek: proper Latinized combining form (e.g., 'gastro', 'tricho', 'dermato')
+   - Check that stem is appropriate for binomial construction
+   - Common issue: Greek root not Latinized (contains θ, ρ, etc.)
+
+4. **Gender**:
+   - If provided, must be 'masc.', 'fem.', 'neut.' or combinations
+   - Should have trailing space for consistency (e.g., 'neut. ')
+   - Must be plausible for the lemma
+   - Empty string acceptable if unknown
+
+5. **Part of Speech**:
+   - Standard: 'n.', 'adj.', 'v.', 'adv.'
+   - Specialized: 'adjectival noun', 'dim. n.', 'suffix', 'n.pl.'
+   - Must be plausible for the lemma
+   - Empty string acceptable if unknown
+
+6. **Definition**:
+   - Should include appropriate articles ('a', 'an', 'the')
+   - Brief English gloss (2-10 words typically)
+   - Should not be empty
+
+7. **Explanation**:
+   - Topical tag or hierarchical descriptor
+   - Should not be empty or generic filler
+   - Examples: 'a microbe', 'the mouth', 'faeces', 'Host-associated-Animals-System-Skin'
+
+GATEKEEPING:
+- Reject pop culture, slang, or informal modern terms
+- Reject entries where Root contains non-ASCII characters
+- Reject entries where Root is not properly Latinized
+- Reject obvious modern English words presented as Latin
+- Prefer classical or scholarly Neo-Latin vocabulary
+- Accept minor formatting issues if normalized_row can fix them
+- For Greek words with Greek script in Word, ensure Root is properly Latinized
+
+DECISION:
+- If acceptable (with or without normalization): set keep=true
+- If minor fixes needed: set keep=true AND include normalized_row
+- If fundamentally flawed: set keep=false with clear reason
+"""
+    return [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
 
 if __name__ == "__main__":  # pragma: no cover
     sys.exit(main())

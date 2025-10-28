@@ -20,7 +20,7 @@ The repository comes with two scripts:
 * [gan-genus](gan-genus.md): generates bacterial genera from two or three Excel files in "GAN" format.
 * [gan-init](gan-init.md): initializes a project directory with necessary files and templates.
 * [xls2tsv](xls2tsv.md): converts Excel files with taxonomic data into TSV format for further processing.
-* [gan-aidraft](gan-aidraft.md): Using OpenRouter API, generates draft etymologies given a text file used as context (e.g. draft of a paper describing the biome where the new taxa were isolated).
+* [gan-aidraft](genai.md): Using OpenRouter API, generates draft etymologies given a text file used as context (e.g. draft of a paper describing the biome where the new taxa were isolated).
 
 
 ## Input

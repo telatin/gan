@@ -32,7 +32,7 @@ test = [
 "gan-genus" = "gan_nomenclature.cli:main"
 "xls2tsv" = "gan_nomenclature.xls2tsv:main"
 "gan-init" = "gan_nomenclature.init_cli:main"
-"gan-ai" = "gan_nomenclature.genai_cli:main"
+"gan-aidraft" = "gan_nomenclature.genai_cli:main"
 
 [project.urls]
 Homepage = "https://github.com/telatin/gan"
