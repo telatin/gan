@@ -1,5 +1,7 @@
 """GAN nomenclature package."""
 
+__version__ = "1.2.0"
+
 from .generator import (
     GenerationResult,
     GeneratedName,
@@ -23,4 +25,4 @@ __all__ = [
     "__version__",
 ]
 
-__version__ = "1.1.2"
+

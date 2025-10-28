@@ -69,6 +69,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=4,
         help="Maximum retries for OpenRouter requests",
     )
+    parser.add_argument(
+        "--skip-refine",
+        action="store_true",
+        help="Skip the secondary quality refinement pass.",
+    )
     return parser
 
 
@@ -335,6 +340,7 @@ def run(
     max_retries: int,
     timeout: int,
     log_enabled: bool,
+    skip_refine: bool,
 ) -> None:
     def emit(message: str) -> None:
         if log_enabled:
@@ -363,6 +369,19 @@ def run(
     dropped = 0
     filter_model = quality_model or model
     for idx, row in enumerate(rows, start=1):
+        if skip_refine:
+            if not all(row.get(col, "").strip() for col in REQUIRED_COLS):
+                dropped += 1
+                missing = [
+                    col for col in REQUIRED_COLS if not row.get(col, "").strip()
+                ]
+                emit(
+                    f"[DROP] Row {idx}: {row.get('Word', '') or '(unnamed)'} — "
+                    f"missing values for {', '.join(missing)}"
+                )
+                continue
+            filtered_rows.append(row)
+            continue
         try:
             verdict = quality_filter_row(
                 row, api_key, filter_model, max_retries=max_retries, timeout=timeout
@@ -444,6 +463,7 @@ def main(argv: List[str] | None = None) -> int:
             max_retries=args.max_retries,
             timeout=args.timeout,
             log_enabled=log_enabled,
+            skip_refine=args.skip_refine,
         )
         return 0
     except KeyboardInterrupt:  # pragma: no cover - user interrupt
