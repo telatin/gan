@@ -20,6 +20,7 @@ __all__ = [
     "generate_outputs",
     "join_two_roots",
     "read_root_table",
+    "__version__",
 ]
 
-__version__ = "0.1.0"
+__version__ = "1.1.0"

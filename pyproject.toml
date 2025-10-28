@@ -3,8 +3,8 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nomenclator"
-version = "1.1.0"
+name = "gan-nomenclature"
+dynamic = ["version"]
 description = "Generate bacterial nomenclature Latin names using a combinatorial approach, as decribed in Pallen et al. (2021) 'The Next Million Names for Archaea and Bacteria'"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -20,6 +20,7 @@ classifiers = [
 dependencies = [
     "pandas>=1.3",
     "openpyxl",
+    "requests>=2.31",
 ]
 
 [project.optional-dependencies]
@@ -31,6 +32,7 @@ test = [
 "gan-genus" = "gan_nomenclature.cli:main"
 "xls2tsv" = "gan_nomenclature.xls2tsv:main"
 "gan-init" = "gan_nomenclature.init_cli:main"
+"gan-ai" = "gan_nomenclature.genai_cli:main"
 
 [project.urls]
 Homepage = "https://github.com/telatin/gan"
@@ -43,6 +45,9 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "gan_nomenclature" = ["templates/*.template"]
+
+[tool.setuptools.dynamic]
+version = { attr = "gan_nomenclature.__version__" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

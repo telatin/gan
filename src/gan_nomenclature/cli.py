@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import List
 
+from . import __version__
 from .generator import generate_outputs
 from .io import read_root_table
 
@@ -31,6 +32,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--verbose",
         action="store_true",
         help="Increase output verbosity",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+        help="Show the program's version number and exit",
     )
     return parser
 
