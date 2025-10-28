@@ -10,6 +10,7 @@ Icons used for the illustration are from Pixabay, and are licenced by Pixabay un
 
 
 ## Detailed links
+
 * Charles Darwin, from [link](https://pixabay.com/vectors/charles-darwin-evolution-2029626/)
 
 * _Escherichia coli_, from [link](https://pixabay.com/illustrations/escherichia-coli-bacteria-2034313/)

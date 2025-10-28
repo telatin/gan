@@ -16,47 +16,12 @@ pip install nomenclator
 ## Usage
 
 The repository comes with two scripts:
-* gan-validate.py - to perform a check of the Excel input files
-* gan-genus.py - to combine two or more Excel files
 
-### gan-genus.py
+* [gan-genus](gan-genus.md): generates bacterial genera from two or three Excel files in "GAN" format.
+* [gan-init](gan-init.md): initializes a project directory with necessary files and templates.
+* [xls2tsv](xls2tsv.md): converts Excel files with taxonomic data into TSV format for further processing.
+* [gan-aidraft](gan-aidraft.md): Using OpenRouter API, generates draft etymologies given a text file used as context (e.g. draft of a paper describing the biome where the new taxa were isolated).
 
-```text
-usage: gan-genus.py [-h] -1 FIRST -2 SECOND [-3 THIRD] -o OUTDIR [-p PREFIX] [-c CONNECTOR] [-v]
-
-Generate bacterial genera with Excel input
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -1 FIRST, --first FIRST
-                        First Excel file in "GAN" format
-  -2 SECOND, --second SECOND
-                        Second Excel file in "GAN" format
-  -3 THIRD, --third THIRD
-                        Third Excel file in "GAN" format
-  -o OUTDIR, --outdir OUTDIR
-                        Output directory
-  -p PREFIX, --prefix PREFIX
-                        Output basename [default: 'gan']
-  -c CONNECTOR, --connector CONNECTOR
-                        String connecting the explanatory strings [default: 'of']
-  -v, --verbose         Increase output verbosity
-```
-
-The program requires two or three Excel tables, to be supplied with the `-1`, `-2` and `-3` arguments, respectively.
-
-The program requires an output directory to be specified (via `-o`), and optionally an output "basename" prefix (via `-p`).
-
-The repository comes with small test files to check that the program is working properly. From the base directory of the repository:
-```bash
-mkdir test_output
-./scripts/gan-genus.py -1 ./test/table1.xlsx -2 ./test/table2.xlsx -o ./test_output
-```
-
-This will produce three files in the _test\_output_ directory:
-* **gan.html** (HTML formatted text)
-* **gan.json** (computer friendly output, in JSON format)
-* **gan.tex** (LaTeX list, requiring an additional _config.tex_ from the _docs_ directory)
 
 ## Input
 

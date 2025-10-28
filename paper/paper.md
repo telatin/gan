@@ -25,6 +25,11 @@ The tool generates taxonomic names by combinatorially concatenating roots from
 Latin and Greek starting from two Excel files containing curated lists of 
 roots to be combinatorially assembled into genus and species names.
 
+# Statement of need
+
+The increased rate of discovery of new microbial taxa driven by high-throughput sequencing technologies has created a bottleneck in the formal naming of new taxa, which requires the creation of valid Latin names that conform to the ICNP rules and Latin grammar.
+The manual creation of such names is time-consuming and requires expertise in Latin, which is not commonly available among microbiologists.
+`nomenclator` addresses this need by providing an automated tool that generates valid Latin names, thus facilitating the formal naming process and accelerating the description of new microbial taxa.
 
 # Implementation and Features
 
@@ -65,7 +70,7 @@ The programme's output can be saved as HTML or PDF files. An example is:
 
 # Acknowledgments
 
-This software originated from research conducted with Mark J. Pallen and Aharon Oren, published in *Trends in Microbiology* [@pallen2021] as *Great Automatic Nomenclator*, where it demonstrated the concept of large scale nomenclature generation for prokaryotic taxonomy. This paper describe the `nomenclator` package, which implements and extends the original script providing a Python package with CLI and additional features.
+This software originated from research conducted with Mark J. Pallen and Aharon Oren, published in *Trends in Microbiology* [@Pallen2021] as *Great Automatic Nomenclator*, where it demonstrated the concept of large scale nomenclature generation for prokaryotic taxonomy. This paper describe the `nomenclator` package, which implements and extends the original script providing a Python package with CLI and additional features.
 
 # Funding
 
