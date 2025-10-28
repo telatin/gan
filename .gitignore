@@ -132,5 +132,5 @@ the_real_final_input/
 .DS_Store
 .vscode/
 .idea/
-*.md
+./*.md
 !README.md
